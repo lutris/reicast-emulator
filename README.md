@@ -71,6 +71,7 @@ Requirements:
 * libegl1-mesa-dev
 * libgles2-mesa-dev
 * libasound2-dev
+* libsdl1.2-dev
 
 To build the project, go to shell/lin86 and run make
 
