@@ -610,9 +610,7 @@ bool CompilePipelineShader(	PipelineShader* s)
 }
 
 GLuint osd_tex;
-#ifdef TARGET_PANDORA
 GLuint osd_font;
-#endif
 
 bool gl_create_resources()
 {
@@ -689,9 +687,7 @@ bool gl_create_resources()
 
 	int w, h;
 	osd_tex=loadPNG(GetPath("/data/buttons.png"),w,h);
-#ifdef TARGET_PANDORA
 	osd_font=loadPNG(GetPath("/font2.png"),w,h);
-#endif
 
 	return true;
 }

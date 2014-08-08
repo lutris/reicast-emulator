@@ -15,9 +15,6 @@
 #include "hw/sh4/dyna/blockmanager.h"
 #include <unistd.h>
 
-
-
-
 #if defined(SUPPORT_X11)
 	#include <X11/Xlib.h>
 	#include <X11/Xatom.h>
@@ -26,15 +23,15 @@
 
 #if !defined(ANDROID)
 	#include <linux/joystick.h>
-	#include <sys/stat.h> 
-	#include <sys/types.h> 
+	#include <sys/stat.h>
+	#include <sys/types.h>
 #endif
 
 #ifdef TARGET_PANDORA
 #include <signal.h>
 #include <execinfo.h>
 #include <sys/soundcard.h>
-	
+
 #define WINDOW_WIDTH	800
 #else
 #define WINDOW_WIDTH	640
@@ -42,13 +39,13 @@
 #define WINDOW_HEIGHT	480
 
 void* x11_win=0,* x11_disp=0;
-void* libPvr_GetRenderTarget() 
-{ 
-	return x11_win; 
+void* libPvr_GetRenderTarget()
+{
+	return x11_win;
 }
 
-void* libPvr_GetRenderSurface() 
-{ 
+void* libPvr_GetRenderSurface()
+{
 	return x11_disp;
 }
 
@@ -65,8 +62,6 @@ int msgboxf(const wchar* text,unsigned int type,...)
 	puts(temp);
 	return MBX_OK;
 }
-
-
 
 u16 kcode[4];
 u32 vks[4];
@@ -97,11 +92,10 @@ enum DCPad {
 	Axis_Y= 0x20001,
 };
 
-
 void emit_WriteCodeCache();
 
 static int JoyFD    = -1;     // Joystick file descriptor
-static int kbfd = -1; 
+static int kbfd = -1;
 #ifdef TARGET_PANDORA
 static int audio_fd = -1;
 #endif
@@ -157,7 +151,7 @@ void SetupInput()
 
 	// Open joystick device
 	JoyFD = open("/dev/input/js0",O_RDONLY);
-		
+
 	if(JoyFD>=0)
 	{
 		int AxisCount,ButtonCount;
@@ -171,7 +165,7 @@ void SetupInput()
 		ioctl(JoyFD,JSIOCGAXES,&AxisCount);
 		ioctl(JoyFD,JSIOCGBUTTONS,&ButtonCount);
 		ioctl(JoyFD,JSIOCGNAME(sizeof(Name)),&Name);
-		
+
 		printf("SDK: Found '%s' joystick with %d axis and %d buttons\n",Name,AxisCount,ButtonCount);
 
 		if (strcmp(Name,"Microsoft X-Box 360 pad")==0)
@@ -203,7 +197,7 @@ bool HandleKb(u32 port) {
                 #define KEY_UP          0x67
                 #define KEY_DOWN        0x6C
                 #define KEY_LOCK        0x77    // Note that KEY_LOCK is a switch and remains pressed until it's switched back
- 
+
 	static int keys[13];
 	while(read(kbfd,&ie,sizeof(ie))==sizeof(ie)) {
 		//printf("type %i key %i state %i\n", ie.type, ie.code, ie.value);
@@ -230,10 +224,10 @@ bool HandleKb(u32 port) {
 	if (keys[3]) { kcode[port] &= ~DPad_Left;  }
 	if (keys[4]) { kcode[port] &= ~DPad_Right; }
 	if (keys[12]){ kcode[port] &= ~Btn_Start; }
-	if (keys[9]){ die("death by escape key"); } 
+	if (keys[9]){ die("death by escape key"); }
 	if (keys[10]) rt[port]=255;
 	if (keys[11]) lt[port]=255;
-	
+
 	return true;
 
 	#elif defined(TARGET_PANDORA)
@@ -257,7 +251,7 @@ bool HandleKb(u32 port) {
 			case KEY_LEFTALT:		keys[12]=ie.value; break;
 		}
 	}
-			
+
 	if (keys[0]) { kcode[port] &= ~Btn_C; }
 	if (keys[6]) { kcode[port] &= ~Btn_A; }
 	if (keys[7]) { kcode[port] &= ~Btn_B; }
@@ -268,10 +262,10 @@ bool HandleKb(u32 port) {
 	if (keys[3]) { kcode[port] &= ~DPad_Left;  }
 	if (keys[4]) { kcode[port] &= ~DPad_Right; }
 	if (keys[12]){ kcode[port] &= ~Btn_Start; }
-	if (keys[9]){ die("death by escape key"); } 
+	if (keys[9]){ die("death by escape key"); }
 	if (keys[10]) rt[port]=255;
 	if (keys[11]) lt[port]=255;
-	
+
 	return true;
 	#else
   	while(read(kbfd,&ie,sizeof(ie))==sizeof(ie)) {
@@ -283,7 +277,7 @@ bool HandleKb(u32 port) {
 
 bool HandleJoystick(u32 port)
 {
-  
+
   struct js_event JE;
 
   // Joystick must be connected
@@ -298,10 +292,10 @@ bool HandleJoystick(u32 port)
 			  {
 				  u32 mt=JMapAxis[JE.number]>>16;
 				  u32 mo=JMapAxis[JE.number]&0xFFFF;
-				  
+
 				 //printf("AXIS %d,%d\n",JE.number,JE.value);
 				  s8 v=(s8)(JE.value/256); //-127 ... + 127 range
-				  
+
 				  if (mt==0)
 				  {
 					  kcode[port]|=mo;
@@ -376,12 +370,12 @@ extern bool KillTex;
 #ifdef TARGET_PANDORA
 static Cursor CreateNullCursor(Display *display, Window root)
 {
-	Pixmap cursormask; 
+	Pixmap cursormask;
 	XGCValues xgc;
 	GC gc;
 	XColor dummycolour;
 	Cursor cursor;
-	
+
 	cursormask = XCreatePixmap(display, root, 1, 1, 1/*depth*/);
 	xgc.function = GXclear;
 	gc =  XCreateGC(display, cursormask, GCFunction, &xgc);
@@ -404,7 +398,7 @@ void UpdateInputState(u32 port)
 	kcode[port]=0xFFFF;
 	rt[port]=0;
 	lt[port]=0;
-	
+
 #if defined(TARGET_GCW0) || defined(TARGET_PANDORA)
 	HandleJoystick(port);
 	HandleKb(port);
@@ -441,7 +435,7 @@ return;
 #endif
 		if (0x0A== key) { kcode[port] &= ~Btn_Start;  }
 #ifdef TARGET_PANDORA
-		if ('q' == key){ die("death by escape key"); } 
+		if ('q' == key){ die("death by escape key"); }
 #endif
 		//if (0x1b == key){ die("death by escape key"); } //this actually quits when i press left for some reason
 
@@ -544,14 +538,14 @@ void os_CreateWindow()
 			Atom wmState = XInternAtom(x11Display, "_NET_WM_STATE", False);
 			Atom wmFullscreen = XInternAtom(x11Display, "_NET_WM_STATE_FULLSCREEN", False);
 			XChangeProperty(x11Display, x11Window, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&wmFullscreen, 1);
-			
+
 			XMapRaised(x11Display, x11Window);
 			#else
 			XMapWindow(x11Display, x11Window);
 			#endif
 			XFlush(x11Display);
 
-			
+
 
 			//(EGLNativeDisplayType)x11Display;
 			x11_disp=(void*)x11Display;
@@ -614,7 +608,7 @@ void gl_term();
 void clean_exit(int sig_num) {
 	void *array[10];
 	size_t size;
-	
+
 	// close files
 	if (JoyFD>=0) close(JoyFD);
 	if (kbfd>=0) close(kbfd);
@@ -623,7 +617,7 @@ void clean_exit(int sig_num) {
 	// Close EGL context ???
 	if (sig_num!=0)
 		gl_term();
-	
+
 	// close XWindow
 	if (x11_win) {
 		XDestroyWindow(x11_disp, x11_win);
@@ -633,11 +627,11 @@ void clean_exit(int sig_num) {
 		XCloseDisplay(x11_disp);
 		x11_disp = 0;
 	}
-	
+
 	// finish cleaning
 	if (sig_num!=0) {
 		write(2, "\nSignal received\n", sizeof("\nSignal received\n"));
-	
+
 		size = backtrace(array, 10);
 		backtrace_symbols_fd(array, size, STDERR_FILENO);
 		exit(1);
@@ -656,7 +650,7 @@ void init_sound()
 	  err_ret=ioctl(audio_fd,SNDCTL_DSP_SPEED,&tmp);
 	  printf("set Frequency to %i, return %i (rate=%i)\n", 44100, err_ret, tmp);
 	  int channels=2;
-	  err_ret=ioctl(audio_fd, SNDCTL_DSP_CHANNELS, &channels);	  
+	  err_ret=ioctl(audio_fd, SNDCTL_DSP_CHANNELS, &channels);
 	  printf("set dsp to stereo (%i => %i)\n", channels, err_ret);
 	  int format=AFMT_S16_LE;
 	  err_ret=ioctl(audio_fd, SNDCTL_DSP_SETFMT, &format);
@@ -667,14 +661,14 @@ void init_sound()
 
 int main(int argc, wchar* argv[])
 {
-	//if (argc==2) 
+	//if (argc==2)
 		//ndcid=atoi(argv[1]);
 
 	if (setup_curses() < 0) die("failed to setup curses!\n");
 #ifdef TARGET_PANDORA
 	signal(SIGSEGV, clean_exit);
 	signal(SIGKILL, clean_exit);
-	
+
 	init_sound();
 #endif
 
@@ -697,13 +691,13 @@ int main(int argc, wchar* argv[])
 	common_linux_setup();
 
 	SetupInput();
-	
+
 	settings.profile.run_counts=0;
-		
+
 	dc_init(argc,argv);
 
 	dc_run();
-	
+
 #ifdef TARGET_PANDORA
 	clean_exit(0);
 #endif
