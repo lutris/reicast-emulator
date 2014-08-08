@@ -96,7 +96,7 @@ void main() \n\
 
 
 
-const char* VertexShaderSource = 
+const char* VertexShaderSource =
 				""
 				"/* Test Projection Matrix */"
 				""
@@ -327,7 +327,7 @@ bool gl_init(EGLNativeWindowType wind, EGLNativeDisplayType disp)
 	if(gl.setup.display == EGL_NO_DISPLAY)
 		gl.setup.display = eglGetDisplay((EGLNativeDisplayType) EGL_DEFAULT_DISPLAY);
 
-	
+
 	// Initialise EGL
 	EGLint maj, min;
 	if (!eglInitialize(gl.setup.display, &maj, &min))
@@ -342,7 +342,7 @@ bool gl_init(EGLNativeWindowType wind, EGLNativeDisplayType disp)
 
 	EGLint pi32ConfigAttribs[]  = { EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT , EGL_DEPTH_SIZE, 24, EGL_STENCIL_SIZE, 8, EGL_NONE };
 	EGLint pi32ContextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2 , EGL_NONE };
-	
+
 	int num_config;
 
 	EGLConfig config;
@@ -413,14 +413,14 @@ void gl_term()
 #ifdef TARGET_PANDORA
 	eglMakeCurrent( gl.setup.display, NULL, NULL, EGL_NO_CONTEXT );
 	if (gl.setup.context)
-		eglDestroyContext(gl.setup.display, gl.setup.context);	
+		eglDestroyContext(gl.setup.display, gl.setup.context);
 	if (gl.setup.surface)
 		eglDestroySurface(gl.setup.display, gl.setup.surface);
 	if (gl.setup.display)
 		eglTerminate(gl.setup.display);
 	if (fbdev>=0)
 		close( fbdev );
-	
+
 	fbdev=-1;
 	gl.setup.context=0;
 	gl.setup.surface=0;
@@ -443,19 +443,19 @@ struct ShaderUniforms_t
 	{
 		if (s->cp_AlphaTestValue!=-1)
 			glUniform1f(s->cp_AlphaTestValue,PT_ALPHA);
-		
+
 		if (s->scale!=-1)
 			glUniform4fv( s->scale, 1, scale_coefs);
-		
+
 		if (s->depth_scale!=-1)
 			glUniform4fv( s->depth_scale, 1, depth_coefs);
-		
+
 		if (s->sp_FOG_DENSITY!=-1)
 			glUniform1f( s->sp_FOG_DENSITY,fog_den_float);
 
 		if (s->sp_FOG_COL_RAM!=-1)
 			glUniform3fv( s->sp_FOG_COL_RAM, 1, ps_FOG_COL_RAM);
-		
+
 		if (s->sp_FOG_COL_VERT!=-1)
 			glUniform3fv( s->sp_FOG_COL_VERT, 1, ps_FOG_COL_VERT);
 
@@ -563,7 +563,7 @@ int GetProgramID(u32 cp_AlphaTest, u32 pp_ClipTestMode,
 bool CompilePipelineShader(	PipelineShader* s)
 {
 	char pshader[8192];
-	
+
 	sprintf(pshader,PixelPipelineShader,
                 s->cp_AlphaTest,s->pp_ClipTestMode,s->pp_UseAlpha,
                 s->pp_Texture,s->pp_IgnoreTexA,s->pp_ShadInstr,s->pp_Offset,s->pp_FogCtrl);
@@ -579,10 +579,10 @@ bool CompilePipelineShader(	PipelineShader* s)
 	//get the uniform locations
 	s->scale	            = glGetUniformLocation(s->program, "scale");
 	s->depth_scale      = glGetUniformLocation(s->program, "depth_scale");
-	
-	
+
+
 	s->pp_ClipTest      = glGetUniformLocation(s->program, "pp_ClipTest");
-	
+
 	s->sp_FOG_DENSITY   = glGetUniformLocation(s->program, "sp_FOG_DENSITY");
 
 	s->cp_AlphaTestValue= glGetUniformLocation(s->program, "cp_AlphaTestValue");
@@ -665,13 +665,13 @@ bool gl_create_resources()
 	}
 
 
-	
+
 	gl.modvol_shader.program=gl_CompileAndLink(VertexShaderSource,ModifierVolumeShader);
 	gl.modvol_shader.scale          = glGetUniformLocation(gl.modvol_shader.program, "scale");
 	gl.modvol_shader.sp_ShaderColor = glGetUniformLocation(gl.modvol_shader.program, "sp_ShaderColor");
 	gl.modvol_shader.depth_scale    = glGetUniformLocation(gl.modvol_shader.program, "depth_scale");
 
-	
+
 	gl.OSD_SHADER.program=gl_CompileAndLink(VertexShaderSource,OSD_Shader);
 	printf("OSD: %d\n",gl.OSD_SHADER.program);
 	gl.OSD_SHADER.scale=glGetUniformLocation(gl.OSD_SHADER.program, "scale");
@@ -720,7 +720,7 @@ bool gles_init()
 	if (!gl_create_resources())
 		return false;
 
-	
+
 	#ifdef TARGET_PANDORA
 	fbdev=open("/dev/fb0", O_RDONLY);
 	#else
@@ -744,7 +744,7 @@ float fog_coefs[]={0,0};
 void tryfit(float* x,float* y)
 {
 	//y=B*ln(x)+A
-	
+
 	double sylnx=0,sy=0,slnx=0,slnx2=0;
 
 	u32 cnt=0;
@@ -759,14 +759,14 @@ void tryfit(float* x,float* y)
 
 		if (i>0 && y[i]==0 && y[i-1]==0)
 			continue;
-		
+
 		//Add many samples for first and last value (fog-in, fog-out -> important)
 		if (i>0 && y[i]!=1 && y[i-1]==1)
 			rep=10000;
 
 		if (i<128 && y[i]!=0 && y[i+1]==0)
 			rep=10000;
-		
+
 		for (int j=0;j<rep;j++)
 		{
 			cnt++;
@@ -875,8 +875,8 @@ static void DrawButton(float* xy, u32 state)
 
 	vjoy_pos[13][4]+=(vjoy_pos[13][0]-vjoy_pos[13][4])/2;
 
-	
-	
+
+
 	vtx.x=x; vtx.y=y;
 	vtx.u=xy[4]; vtx.v=xy[5];
 	*pvrrc.verts.Append()=vtx;
@@ -911,7 +911,7 @@ static void DrawCenteredText(float yy, float scale, int transparency, const char
   Vertex vtx;
 
   vtx.z=1;
-  
+
   float w=float(strlen(text)*14)*scale;
 
   float x=320-w/2.0f;
@@ -920,7 +920,7 @@ static void DrawCenteredText(float yy, float scale, int transparency, const char
   w=14.0f*scale;
   float step=32.0f/512.0f;
   float step2=4.0f/512.0f;
-  
+
   if (transparency<0) transparency=0;
   if (transparency>255) transparency=255;
 
@@ -928,26 +928,26 @@ static void DrawCenteredText(float yy, float scale, int transparency, const char
     int c=text[i];
     float u=float(c%16);
     float v=float(c/16);
-    
+
     vtx.col[0]=vtx.col[1]=vtx.col[2]=255;
     vtx.col[3]=transparency;
-  
+
     vtx.x=x; vtx.y=y;
     vtx.u=u*step+step2; vtx.v=v*step+step2;
     *pvrrc.verts.Append()=vtx;
-      
+
     vtx.x=x+w; vtx.y=y;
     vtx.u=u*step+step-step2; vtx.v=v*step+step2;
     *pvrrc.verts.Append()=vtx;
-      
+
     vtx.x=x; vtx.y=y+h;
     vtx.u=u*step+step2; vtx.v=v*step+step-step2;
     *pvrrc.verts.Append()=vtx;
-      
+
     vtx.x=x+w; vtx.y=y+h;
     vtx.u=u*step+step-step2; vtx.v=v*step+step-step2;
     *pvrrc.verts.Append()=vtx;
-    
+
     x+=w;
 
     osd_count+=4;
@@ -958,58 +958,56 @@ static void DrawRightedText(float yy, float scale, int transparency, const char*
 // Transparency 255=opaque, 0=not visible
 {
   Vertex vtx;
-  
+
   vtx.z=1;
 
   float w=float(strlen(text)*14)*scale;
-  
+
   float x=640-w;
   float y=yy;
   float h=16.0f*scale;
   w=14.0f*scale;
   float step=32.0f/512.0f;
   float step2=4.0f/512.0f;
-  
+
   if (transparency<0) transparency=0;
   if (transparency>255) transparency=255;
-  
+
   for (int i=0; i<strlen(text); i++) {
     int c=text[i];
     float u=float(c%16);
     float v=float(c/16);
-    
+
     vtx.col[0]=vtx.col[1]=vtx.col[2]=255;
     vtx.col[3]=transparency;
-    
+
     vtx.x=x; vtx.y=y;
     vtx.u=u*step+step2; vtx.v=v*step+step2;
     *pvrrc.verts.Append()=vtx;
-   
+
     vtx.x=x+w; vtx.y=y;
     vtx.u=u*step+step-step2; vtx.v=v*step+step2;
     *pvrrc.verts.Append()=vtx;
-    
+
     vtx.x=x; vtx.y=y+h;
     vtx.u=u*step+step2; vtx.v=v*step+step-step2;
     *pvrrc.verts.Append()=vtx;
-    
+
     vtx.x=x+w; vtx.y=y+h;
     vtx.u=u*step+step-step2; vtx.v=v*step+step-step2;
     *pvrrc.verts.Append()=vtx;
-    
+
     x+=w;
-    
+
     osd_count+=4;
   }
 }
 #endif
 
-#ifdef TARGET_PANDORA
 char OSD_Info[128];
 int  OSD_Delay=0;
 char OSD_Counters[256];
 int  OSD_Counter=0;
-#endif
 
 static void OSD_HOOK()
 {
@@ -1048,16 +1046,13 @@ static void OSD_HOOK()
 }
 
 extern GLuint osd_tex;
-#ifdef TARGET_PANDORA
 extern GLuint osd_font;
-#endif
 
 #define OSD_TEX_W 512
 #define OSD_TEX_H 256
 
 void OSD_DRAW()
 {
-	#ifndef TARGET_PANDORA
 	if (osd_tex)
 	{
 		float u=0;
@@ -1068,7 +1063,7 @@ void OSD_DRAW()
 			//umin,vmin,umax,vmax
 			vjoy_pos[i][4]=(u+1)/OSD_TEX_W;
 			vjoy_pos[i][5]=(v+1)/OSD_TEX_H;
-		
+
 			vjoy_pos[i][6]=((u+vjoy_sz[0][i]-1))/OSD_TEX_W;
 			vjoy_pos[i][7]=((v+vjoy_sz[1][i]-1))/OSD_TEX_H;
 
@@ -1099,7 +1094,7 @@ void OSD_DRAW()
 		ShaderUniforms.scale_coefs[1]=-2/dc_height;
 		ShaderUniforms.scale_coefs[2]=1-2*ds2s_offs_x/(screen_width);
 		ShaderUniforms.scale_coefs[3]=-1;
-		
+
 		glUniform4fv( gl.OSD_SHADER.scale, 1, ShaderUniforms.scale_coefs);
 */
 
@@ -1118,13 +1113,11 @@ void OSD_DRAW()
 		for (int i=0;i<dfa;i++)
 			glDrawArrays(GL_TRIANGLE_STRIP,osd_base+i*4,4);
 	}
-#endif
-#ifdef TARGET_PANDORA
   if (osd_font)
   {
     float u=0;
     float v=0;
-   
+
     verify(glIsProgram(gl.OSD_SHADER.program));
 
 	float dc_width=640;
@@ -1133,39 +1126,38 @@ void OSD_DRAW()
 	float dc2s_scale_h=screen_height/480.0f;
 	float ds2s_offs_x=(screen_width-dc2s_scale_h*640)/2;
 
-    
+
     glBindTexture(GL_TEXTURE_2D,osd_font);
     glUseProgram(gl.OSD_SHADER.program);
-  
+
   /*
     //-1 -> too much to left
     ShaderUniforms.scale_coefs[0]=2.0f/(screen_width/dc2s_scale_h);
     ShaderUniforms.scale_coefs[1]=-2/dc_height;
     ShaderUniforms.scale_coefs[2]=1-2*ds2s_offs_x/(screen_width);
     ShaderUniforms.scale_coefs[3]=-1;
-    
+
     glUniform4fv( gl.OSD_SHADER.scale, 1, ShaderUniforms.scale_coefs);
 */
 
     glEnable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
+
 
     glDepthMask(false);
     glDepthFunc(GL_ALWAYS);
-   
+
 
     glDisable(GL_CULL_FACE);
     glDisable(GL_SCISSOR_TEST);
-    
+
 
     int dfa=osd_count/4;
 
    	for (int i=0;i<dfa;i++)
 		glDrawArrays(GL_TRIANGLE_STRIP,osd_base+i*4,4);
  }
-#endif
 }
 
 bool ProcessFrame(TA_context* ctx)
@@ -1196,7 +1188,7 @@ bool RenderFrame()
 	//if (FrameCount&7) return;
 
 	//Setup the matrix
-	
+
 	//TODO: Make this dynamic
 	float vtx_min_fZ=0.f;	//pvrrc.fZ_min;
 	float vtx_max_fZ=pvrrc.fZ_max;
@@ -1230,7 +1222,7 @@ bool RenderFrame()
 	Window space:
 	translated NDC (viewport, glDepth)
 
-	Attributes: 
+	Attributes:
 	//this needs to be cleared up, been some time since I wrote my rasteriser and i'm starting
 	//to forget/mixup stuff
 	vaX         -> VS output
@@ -1262,7 +1254,7 @@ bool RenderFrame()
 	zt_o=(-min_fz-1)/fz == (-min_fz-1)*W
 
 
-	x=fx/(fx_range/2)-1		//0 to max -> -1 to 1 
+	x=fx/(fx_range/2)-1		//0 to max -> -1 to 1
 	y=fy/(-fy_range/2)+1	//0 to max -> 1 to -1
 	z=-min_fz*W + (zt_s-1)  //0 to +inf -> -1 to 1
 
@@ -1316,7 +1308,7 @@ bool RenderFrame()
 		if (VO_CONTROL.pixel_double)
 			scale_x*=0.5;
 	}
-	
+
 	if (SCALER_CTL.hscale)
 	{
 		scale_x*=2;
@@ -1371,7 +1363,7 @@ bool RenderFrame()
 
 	//printf("scale: %f, %f, %f, %f\n",scale_coefs[0],scale_coefs[1],scale_coefs[2],scale_coefs[3]);
 
-	
+
 	//VERT and RAM fog color constants
 	u8* fog_colvert_bgra=(u8*)&FOG_COL_VERT;
 	u8* fog_colram_bgra=(u8*)&FOG_COL_RAM;
@@ -1440,17 +1432,17 @@ bool RenderFrame()
 			channels=GL_RGBA;
 			format=GL_UNSIGNED_SHORT_5_5_5_1;
 			break;
-			
-		case 1: //0x1   565 RGB 16 bit	
+
+		case 1: //0x1   565 RGB 16 bit
 			channels=GL_RGB;
 			format=GL_UNSIGNED_SHORT_5_6_5;
 			break;
-			
+
 		case 2: //0x2   4444 ARGB 16 bit
 			channels=GL_RGBA;
 			format=GL_UNSIGNED_SHORT_5_5_5_1;
 			break;
-			
+
 		case 3://0x3    1555 ARGB 16 bit    The alpha value is determined by comparison with the value of fb_alpha_threshold.
 			channels=GL_RGBA;
 			format=GL_UNSIGNED_SHORT_5_5_5_1;
@@ -1460,12 +1452,12 @@ bool RenderFrame()
 			channels=GL_RGB;
 			format=GL_UNSIGNED_SHORT_5_6_5;
 			break;
-			
+
 		case 5: //0x5   0888 KRGB 32 bit    K is the value of fk_kval.
 			channels=GL_RGBA;
 			format=GL_UNSIGNED_SHORT_4_4_4_4;
 			break;
-			
+
 		case 6: //0x6   8888 ARGB 32 bit
 			channels=GL_RGBA;
 			format=GL_UNSIGNED_SHORT_4_4_4_4;
@@ -1487,7 +1479,7 @@ bool RenderFrame()
 		killtex();
 		printf("Texture cache cleared\n");
 	}
-	
+
 	//Clear depth
 	//Color is cleared by the bgp
 	if (settings.rend.WideScreen)
@@ -1567,7 +1559,7 @@ bool rend_single_frame()
 	bool do_swp=false;
 	//if (kcode[0]&(1<<9))
 	{
-		
+
 
 	//clear up & free data ..
 	tactx_Recycle(_pvrrc);
@@ -1588,7 +1580,7 @@ struct glesrend : Renderer
 {
 	bool Init() { return gles_init(); }
 	void Resize(int w, int h) { }
-	void Term() { } 
+	void Term() { }
 
 	bool Process(TA_context* ctx) { return ProcessFrame(ctx); }
 	bool Render() { return RenderFrame(); }
@@ -1715,7 +1707,7 @@ GLuint loadPNG(const string& fname, int &width, int &height)
 
 	//row_pointers is for pointing to image_data for reading the png with libpng
 	png_bytep *row_pointers = new png_bytep[height];
-	if (!row_pointers) 
+	if (!row_pointers)
 	{
 		//clean up memory and close stuff
 		png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
