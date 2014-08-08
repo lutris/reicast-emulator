@@ -3,7 +3,7 @@ LOCAL_PATH := $(call my-dir)
 FOR_LINUX :=1
 NOT_ARM := 1
 NO_REC := 1
-USE_SDL := 1
+USE_SDL := 0
 #USE_OSS := 1
 WEBUI :=1
 

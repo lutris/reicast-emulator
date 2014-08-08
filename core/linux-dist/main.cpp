@@ -100,7 +100,8 @@ static int kbfd = -1;
 static int audio_fd = -1;
 #endif
 
-
+#define DREAMCAST_RESOL_X 640
+#define DREAMCAST_RESOL_Y 480
 #define MAP_SIZE 32
 
 const u32 JMapBtn_USB[MAP_SIZE] =
@@ -457,102 +458,102 @@ void os_DoEvents()
 
 void os_SetWindowText(const char * text)
 {
-	if (0==x11_win || 0==x11_disp || 1)
+	if (0 == x11_win || 0 == x11_disp || 1)
 		printf("%s\n",text);
 #if defined(SUPPORT_X11)
 	else {
-		XChangeProperty((Display*)x11_disp, (Window)x11_win,
-			XInternAtom((Display*)x11_disp, "WM_NAME",		False),		//WM_NAME,
-			XInternAtom((Display*)x11_disp, "UTF8_STRING",	False),		//UTF8_STRING,
-			8, PropModeReplace, (const unsigned char *)text, strlen(text));
+		XChangeProperty(
+                (Display*)x11_disp, (Window)x11_win,
+			    XInternAtom((Display*)x11_disp, "WM_NAME",		False),		//WM_NAME,
+    			XInternAtom((Display*)x11_disp, "UTF8_STRING",	False),		//UTF8_STRING,
+	    		8, PropModeReplace, (const unsigned char *)text, strlen(text));
 	}
 #endif
 }
-
 
 int ndcid=0;
 void os_CreateWindow()
 {
 #if defined(SUPPORT_X11)
-	if (cfgLoadInt("pvr","nox11",0)==0)
-		{
-			// X11 variables
-			Window				x11Window	= 0;
-			Display*			x11Display	= 0;
-			long				x11Screen	= 0;
-			XVisualInfo*		x11Visual	= 0;
-			Colormap			x11Colormap	= 0;
+	if (cfgLoadInt("pvr", "nox11", 0) != 0) {
+        printf("Not creating X11 window ..\n");
+        return;
+    }
+    // X11 variables
+    Window				x11Window	= 0;
+    Display*			x11Display	= 0;
+    long				x11Screen	= 0;
+    XVisualInfo*		x11Visual	= 0;
+    Colormap			x11Colormap	= 0;
 
-			/*
-			Step 0 - Create a NativeWindowType that we can use it for OpenGL ES output
-			*/
-			Window					sRootWindow;
-			XSetWindowAttributes	sWA;
-			unsigned int			ui32Mask;
-			int						i32Depth;
+    /*
+    Step 0 - Create a NativeWindowType that we can use it for OpenGL ES output
+    */
+    Window					sRootWindow;
+    XSetWindowAttributes	sWA;
+    unsigned int			ui32Mask;
+    int						i32Depth;
 
-			// Initializes the display and screen
-			x11Display = XOpenDisplay( 0 );
-			if (!x11Display && !(x11Display = XOpenDisplay( ":0" )))
-			{
-				printf("Error: Unable to open X display\n");
-				return;
-			}
-			x11Screen = XDefaultScreen( x11Display );
+    // Initializes the display and screen
+    x11Display = XOpenDisplay( 0 );
+    if (!x11Display && !(x11Display = XOpenDisplay( ":0" )))
+    {
+        printf("Error: Unable to open X display\n");
+        return;
+    }
+    x11Screen = XDefaultScreen( x11Display );
 
-			// Gets the window parameters
-			sRootWindow = RootWindow(x11Display, x11Screen);
-			i32Depth = DefaultDepth(x11Display, x11Screen);
-			x11Visual = new XVisualInfo;
-			XMatchVisualInfo( x11Display, x11Screen, i32Depth, TrueColor, x11Visual);
-			if (!x11Visual)
-			{
-				printf("Error: Unable to acquire visual\n");
-				return;
-			}
-			x11Colormap = XCreateColormap( x11Display, sRootWindow, x11Visual->visual, AllocNone );
-			sWA.colormap = x11Colormap;
+    // Gets the window parameters
+    sRootWindow = RootWindow(x11Display, x11Screen);
+    i32Depth = DefaultDepth(x11Display, x11Screen);
+    x11Visual = new XVisualInfo;
+    XMatchVisualInfo( x11Display, x11Screen, i32Depth, TrueColor, x11Visual);
+    if (!x11Visual) {
+        printf("Error: Unable to acquire visual\n");
+        return;
+    }
+    x11Colormap = XCreateColormap( x11Display, sRootWindow, x11Visual->visual, AllocNone );
+    sWA.colormap = x11Colormap;
 
-			// Add to these for handling other events
-			sWA.event_mask = StructureNotifyMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask;
-			ui32Mask = CWBackPixel | CWBorderPixel | CWEventMask | CWColormap;
+    // Add to these for handling other events
+    sWA.event_mask = StructureNotifyMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask;
+    ui32Mask = CWBackPixel | CWBorderPixel | CWEventMask | CWColormap;
 
-			#ifdef TARGET_PANDORA
-			int width=800;
-			int height=480;
-			#else
-			int width=cfgLoadInt("x11","width", WINDOW_WIDTH);
-			int height=cfgLoadInt("x11","height", WINDOW_HEIGHT);
-			#endif
+    #ifdef TARGET_PANDORA
+    int width=800;
+    int height=480;
+    #else
+    int width=cfgLoadInt("x11","width", WINDOW_WIDTH);
+    int height=cfgLoadInt("x11","height", WINDOW_HEIGHT);
+    #endif
 
-			if (width==-1)
-			{
-				width=XDisplayWidth(x11Display,x11Screen);
-				height=XDisplayHeight(x11Display,x11Screen);
-			}
-			// Creates the X11 window
-			x11Window = XCreateWindow( x11Display, RootWindow(x11Display, x11Screen), (ndcid%3)*640, (ndcid/3)*480, width, height,
-				0, CopyFromParent, InputOutput, CopyFromParent, ui32Mask, &sWA);
-			#ifdef TARGET_PANDORA
-			// fullscreen
-			Atom wmState = XInternAtom(x11Display, "_NET_WM_STATE", False);
-			Atom wmFullscreen = XInternAtom(x11Display, "_NET_WM_STATE_FULLSCREEN", False);
-			XChangeProperty(x11Display, x11Window, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&wmFullscreen, 1);
+    if (width == -1) {
+        width=XDisplayWidth(x11Display, x11Screen);
+        height=XDisplayHeight(x11Display, x11Screen);
+    }
+    
+    printf("Creating window\n");
+    x11Window = XCreateWindow(
+           x11Display, 
+           RootWindow(x11Display, x11Screen), 
+           (ndcid % 3) * DREAMCAST_RESOL_X, (ndcid / 3) * DREAMCAST_RESOL_Y, 
+           width, height, 
+           0, CopyFromParent, InputOutput, CopyFromParent, ui32Mask, &sWA);
+    #ifdef TARGET_PANDORA
+    // fullscreen
+    Atom wmState = XInternAtom(x11Display, "_NET_WM_STATE", False);
+    Atom wmFullscreen = XInternAtom(x11Display, "_NET_WM_STATE_FULLSCREEN", False);
+    XChangeProperty(x11Display, x11Window, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&wmFullscreen, 1);
 
-			XMapRaised(x11Display, x11Window);
-			#else
-			XMapWindow(x11Display, x11Window);
-			#endif
-			XFlush(x11Display);
+    XMapRaised(x11Display, x11Window);
+    #else
+    XMapWindow(x11Display, x11Window);
+    #endif
+    XFlush(x11Display);
 
-
-
-			//(EGLNativeDisplayType)x11Display;
-			x11_disp=(void*)x11Display;
-			x11_win=(void*)x11Window;
-		}
-		else
-			printf("Not creating X11 window ..\n");
+    //(EGLNativeDisplayType)x11Display;
+    x11_disp=(void*)x11Display;
+    x11_win=(void*)x11Window;
 #endif
 }
 
@@ -563,7 +564,6 @@ int setup_curses()
     //initscr();
     //cbreak();
     //noecho();
-
 
     /* Get current terminal settings */
     if (tcgetattr(STDIN_FILENO, &orig_tios)) {
@@ -602,7 +602,6 @@ void common_linux_setup();
 int dc_init(int argc,wchar* argv[]);
 void dc_run();
 
-#ifdef TARGET_PANDORA
 void gl_term();
 
 void clean_exit(int sig_num) {
@@ -657,7 +656,6 @@ void init_sound()
 	  printf("set dsp to %s audio (%i/%i => %i)\n", "16bits signed" ,AFMT_S16_LE, format, err_ret);
 	}
 }
-#endif
 
 int main(int argc, wchar* argv[])
 {
@@ -665,27 +663,23 @@ int main(int argc, wchar* argv[])
 		//ndcid=atoi(argv[1]);
 
 	if (setup_curses() < 0) die("failed to setup curses!\n");
-#ifdef TARGET_PANDORA
 	signal(SIGSEGV, clean_exit);
 	signal(SIGKILL, clean_exit);
 
 	init_sound();
-#endif
 
 #if defined(USES_HOMEDIR)
 	string home = (string)getenv("HOME");
-	if(home.c_str())
-	{
+	if(home.c_str()) {
 		home += "/.reicast";
 		mkdir(home.c_str(), 0755); // create the directory if missing
 		SetHomeDir(home);
-	}
-	else
+	} else {
 		SetHomeDir(".");
+    }
 #else
 	SetHomeDir(".");
 #endif
-
 	printf("Home dir is: %s\n",GetPath("/").c_str());
 
 	common_linux_setup();
@@ -698,21 +692,17 @@ int main(int argc, wchar* argv[])
 
 	dc_run();
 
-#ifdef TARGET_PANDORA
 	clean_exit(0);
-#endif
 
 	return 0;
 }
 
 u32 os_Push(void* frame, u32 samples, bool wait)
 {
-#ifdef TARGET_PANDORA
 	write(audio_fd, frame, samples*4);
-#endif
-return 1;
+    return 1;
 }
-#endif
+#endif // HOST_OS==OS_LINUX
 
 int get_mic_data(u8* buffer) { return 0; }
 int push_vmu_screen(u8* buffer) { return 0; }
