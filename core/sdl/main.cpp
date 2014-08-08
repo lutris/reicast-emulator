@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <sys/param.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 #include "hw/sh4/dyna/blockmanager.h"
 #include <unistd.h>
@@ -26,7 +27,7 @@
 #include <execinfo.h>
 
 #include "hw/mem/_vmem.h"
-	
+
 #ifdef TARGET_PANDORA
 #define WINDOW_WIDTH	800
 #else
@@ -37,13 +38,13 @@
 void* x11_win=(NativeWindowType)NULL,* x11_disp=EGL_DEFAULT_DISPLAY;
 SDL_Surface *screen=NULL;
 
-void* libPvr_GetRenderTarget() 
-{ 
-	return x11_win; 
+void* libPvr_GetRenderTarget()
+{
+	return x11_win;
 }
 
-void* libPvr_GetRenderSurface() 
-{ 
+void* libPvr_GetRenderSurface()
+{
 	return x11_disp;
 }
 
@@ -140,7 +141,7 @@ void SetupInput()
 	printf("Number of Joysticks found = %i\n", numjoys);
 	if (numjoys > 0)
 		JoySDL = SDL_JoystickOpen(0);
-	printf("Joystick openned\n");	
+	printf("Joystick openned\n");
 	if(JoySDL)
 	{
 		int AxisCount,ButtonCount;
@@ -153,7 +154,7 @@ void SetupInput()
 		AxisCount = SDL_JoystickNumAxes(JoySDL);
 		ButtonCount = SDL_JoystickNumButtons(JoySDL);
 		Name = SDL_JoystickName(0);
-		
+
 		printf("SDK: Found '%s' joystick with %d axis and %d buttons\n",Name,AxisCount,ButtonCount);
 
 		if (strcmp(Name,"Microsoft X-Box 360 pad")==0)
@@ -220,7 +221,7 @@ bool HandleEvents(u32 port) {
 					case SDLK_RCTRL:	keys[10]=value; break;
 					case SDLK_LALT:		keys[12]=value; break;
 					case SDLK_k:		KillTex=true; break;
-					case SDLK_n:    if (value) {mouse_use=(mouse_use+1)%4; snprintf(OSD_Info, 128, "Right Nub mode: %s\n", num_mode[mouse_use]); OSD_Delay=300;}; break;  
+					case SDLK_n:    if (value) {mouse_use=(mouse_use+1)%4; snprintf(OSD_Info, 128, "Right Nub mode: %s\n", num_mode[mouse_use]); OSD_Delay=300;}; break;
 					case SDLK_s:        if (value) {settings.aica.NoSound=!settings.aica.NoSound; snprintf(OSD_Info, 128, "Sound %s\n", (settings.aica.NoSound)?"Off":"On"); OSD_Delay=300;};break;
 					case SDLK_c:    if (value) {OSD_Counter=1-OSD_Counter;};break;
 
@@ -236,9 +237,9 @@ bool HandleEvents(u32 port) {
 				{
 					u32 mt=JMapBtn[k]>>16;
 					u32 mo=JMapBtn[k]&0xFFFF;
-					
+
 					// printf("BUTTON %d,%d\n",JE.number,JE.value);
-					
+
 					if (mt==0)
 					{
 						// printf("Mapped to %d\n",mo);
@@ -255,7 +256,7 @@ bool HandleEvents(u32 port) {
 						else if (mo==1)
 						rt[port]=value?255:0;
 					}
-					
+
 				}
 				break;
 			case SDL_JOYAXISMOTION:
@@ -264,13 +265,13 @@ bool HandleEvents(u32 port) {
 				{
 					u32 mt=JMapAxis[k]>>16;
 					u32 mo=JMapAxis[k]&0xFFFF;
-					
+
 					//printf("AXIS %d,%d\n",JE.number,JE.value);
 					s8 v=(s8)(value/256); //-127 ... + 127 range
 					#ifdef TARGET_PANDORA
 					v=JSensitivity[128+v];
 					#endif
-					
+
 					if (mt==0)
 					{
 						kcode[port]|=mo;
@@ -283,15 +284,15 @@ bool HandleEvents(u32 port) {
 						{
 							kcode[port]&=~(mo*2);
 						}
-						
+
 						// printf("Mapped to %d %d %d\n",mo,kcode[port]&mo,kcode[port]&(mo*2));
 					}
 					else if (mt==1)
 					{
 						if (v>=0) v++;	//up to 255
-						
+
 						//   printf("AXIS %d,%d Mapped to %d %d %d\n",JE.number,JE.value,mo,v,v+127);
-						
+
 						if (mo==0)
 						lt[port]=v+127;
 						else if (mo==1)
@@ -337,9 +338,9 @@ bool HandleEvents(u32 port) {
           }
         break;
 		}
-			
+
 	}
-			
+
 	if (keys[0]) { kcode[port] &= ~Btn_C; }
 	if (keys[6]) { kcode[port] &= ~Btn_A; }
 	if (keys[7]) { kcode[port] &= ~Btn_B; }
@@ -350,18 +351,18 @@ bool HandleEvents(u32 port) {
 	if (keys[3]) { kcode[port] &= ~DPad_Left;  }
 	if (keys[4]) { kcode[port] &= ~DPad_Right; }
 	if (keys[12]){ kcode[port] &= ~Btn_Start; }
-	if (keys[9]){ 
-			//die("death by escape key"); 
-			//printf("death by escape key\n"); 
+	if (keys[9]){
+			//die("death by escape key");
+			//printf("death by escape key\n");
 			// clean exit
 			dc_term();
-		
+
 			// is there a proper way to exit? dc_term() doesn't end the dc_run() loop it seems
-			die("death by escape key"); 
-		} 
+			die("death by escape key");
+		}
 	if (keys[10]) rt[port]=255;
 	if (keys[11]) lt[port]=255;
-	
+
 	return true;
 }
 
@@ -372,7 +373,7 @@ void UpdateInputState(u32 port)
 	kcode[port]=0xFFFF;
 	rt[port]=0;
 	lt[port]=0;
-	
+
 	HandleEvents(port);
 }
 
@@ -420,7 +421,7 @@ void gl_term();
 void clean_exit(int sig_num) {
 	void *array[10];
 	size_t size;
-	
+
 	// close files
 	if (JoySDL) 		SDL_JoystickClose(JoySDL);
 	#ifdef USE_OSS
@@ -447,7 +448,7 @@ void init_sound()
 	  err_ret=ioctl(audio_fd,SNDCTL_DSP_SPEED,&tmp);
 	  printf("set Frequency to %i, return %i (rate=%i)\n", 44100, err_ret, tmp);
 	  int channels=2;
-	  err_ret=ioctl(audio_fd, SNDCTL_DSP_CHANNELS, &channels);	  
+	  err_ret=ioctl(audio_fd, SNDCTL_DSP_CHANNELS, &channels);
 	  printf("set dsp to stereo (%i => %i)\n", channels, err_ret);
 	  int format=AFMT_S16_LE;
 	  err_ret=ioctl(audio_fd, SNDCTL_DSP_SETFMT, &format);
@@ -467,7 +468,7 @@ void init_sound()
 
 int main(int argc, wchar* argv[])
 {
-	//if (argc==2) 
+	//if (argc==2)
 		//ndcid=atoi(argv[1]);
 
 #if defined(USES_HOMEDIR)
@@ -489,22 +490,22 @@ int main(int argc, wchar* argv[])
 	common_linux_setup();
 
 	printf("common linux setup done\n");
-	
+
 	settings.profile.run_counts=0;
-		
+
 	dc_init(argc,argv);
 
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_NOPARACHUTE)==-1)
 	die("error initializing SDL");
-	
+
 	SetupInput();
-	
-	#ifdef USE_OSS	
+
+	#ifdef USE_OSS
 		init_sound();
 	#endif
-	
+
 	dc_run();
-	
+
 	clean_exit(0);
 
 	return 0;
