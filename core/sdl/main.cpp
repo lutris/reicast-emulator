@@ -157,13 +157,15 @@ void SetupInput()
 
 		printf("SDK: Found '%s' joystick with %d axis and %d buttons\n",Name,AxisCount,ButtonCount);
 
-		if (strcmp(Name,"Microsoft X-Box 360 pad")==0)
+		if (strcmp(Name,"Microsoft X-Box 360 pad") == 0)
 		{
 			JMapBtn=JMapBtn_360;
 			JMapAxis=JMapAxis_360;
 			printf("Using Xbox 360 map\n");
 		}
-	} else printf("SDK: No Joystick Found\n");
+	} else {
+        printf("SDK: No Joystick Found\n");
+    }
 	#ifdef TARGET_PANDORA
 	float v;
 	int j;
@@ -177,8 +179,8 @@ void SetupInput()
 	}
 	#endif
 	SDL_ShowCursor( 0 );
-	if (SDL_WM_GrabInput( SDL_GRAB_ON ) != SDL_GRAB_ON)
-		printf("SDK: Error while grabbing mouse\n");
+	//if (SDL_WM_GrabInput(SDL_GRAB_ON) != SDL_GRAB_ON)
+    //	printf("SDK: Error while grabbing mouse\n");
 }
 
 extern char OSD_Info[128];
