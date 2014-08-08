@@ -205,29 +205,68 @@ bool HandleEvents(u32 port) {
 				value = (event.type==SDL_KEYDOWN)?1:0;
 				 //printf("type %i key %i \n", event.type, k);
 				switch (k) {
-				#if defined(TARGET_PANDORA)
-					case SDLK_SPACE: 	keys[0]=value; break;
-					case SDLK_UP:		keys[1]=value; break;
-					case SDLK_DOWN:		keys[2]=value; break;
-					case SDLK_LEFT:		keys[3]=value; break;
-					case SDLK_RIGHT:	keys[4]=value; break;
-					case SDLK_PAGEUP:	keys[5]=value; break;
-					case SDLK_PAGEDOWN:	keys[6]=value; break;
-					case SDLK_END:		keys[7]=value; break;
-					case SDLK_HOME:		keys[8]=value; break;
+					case SDLK_SPACE:
+                        keys[0]=value;
+                        break;
+					case SDLK_UP:
+                        keys[1]=value;
+                        break;
+					case SDLK_DOWN:
+                        keys[2]=value;
+                        break;
+					case SDLK_LEFT:
+                        keys[3]=value;
+                        break;
+					case SDLK_RIGHT:
+                        keys[4]=value;
+                        break;
+					case SDLK_PAGEUP:
+                        keys[5]=value;
+                        break;
+					case SDLK_PAGEDOWN:
+                        keys[6]=value;
+                        break;
+					case SDLK_END:
+                        keys[7]=value;
+                        break;
+					case SDLK_HOME:
+                        keys[8]=value;
+                        break;
 					case SDLK_MENU:
-					case SDLK_ESCAPE:	keys[9]=value; break;
-					case SDLK_RSHIFT:	keys[11]=value; break;
-					case SDLK_RCTRL:	keys[10]=value; break;
-					case SDLK_LALT:		keys[12]=value; break;
-					case SDLK_k:		KillTex=true; break;
-					case SDLK_n:    if (value) {mouse_use=(mouse_use+1)%4; snprintf(OSD_Info, 128, "Right Nub mode: %s\n", num_mode[mouse_use]); OSD_Delay=300;}; break;
-					case SDLK_s:        if (value) {settings.aica.NoSound=!settings.aica.NoSound; snprintf(OSD_Info, 128, "Sound %s\n", (settings.aica.NoSound)?"Off":"On"); OSD_Delay=300;};break;
-					case SDLK_c:    if (value) {OSD_Counter=1-OSD_Counter;};break;
-
-				#else
-				#error *TODO*
-				#endif
+					case SDLK_ESCAPE:
+                        keys[9]=value;
+                        break;
+					case SDLK_RSHIFT:
+                        keys[11]=value;
+                        break;
+					case SDLK_RCTRL:
+                        keys[10]=value;
+                        break;
+					case SDLK_LALT:
+                        keys[12]=value;
+                        break;
+					case SDLK_k:
+                        KillTex=true;
+                        break;
+					case SDLK_n:
+                        if (value) {
+                            mouse_use=(mouse_use+1) % 4;
+                            snprintf(OSD_Info, 128, "Right Nub mode: %s\n", num_mode[mouse_use]);
+                            OSD_Delay=300;
+                        };
+                        break;
+					case SDLK_s:
+                        if (value) {
+                            settings.aica.NoSound = !settings.aica.NoSound;
+                            snprintf(OSD_Info, 128, "Sound %s\n", (settings.aica.NoSound) ? "Off" : "On");
+                            OSD_Delay=300;
+                        };
+                        break;
+					case SDLK_c:
+                        if (value) {
+                            OSD_Counter=1-OSD_Counter;
+                        };
+                        break;
 				}
 				break;
 			case SDL_JOYBUTTONDOWN:
