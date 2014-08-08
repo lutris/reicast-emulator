@@ -82,6 +82,15 @@ enum MapleDeviceRV
 
 #define SWAP32(a) ((((a) & 0xff) << 24)  | (((a) & 0xff00) << 8) | (((a) >> 8) & 0xff00) | (((a) >> 24) & 0xff))
 
+int get_mic_data(u8* buffer) { 
+    printf("Copied from linux-dist/main.cpp because I was having an undefined reference otherwise.\n");
+    return 0; 
+}
+int push_vmu_screen(u8* buffer) { 
+    printf("Copied from linux-dist/main.cpp because I was having an undefined reference otherwise.\n");
+    return 0; 
+}
+
 //fill in the info
 void maple_device::Setup(u32 prt)
 {
@@ -130,7 +139,7 @@ struct maple_base: maple_device
 		while(len--)
 			w8(0x20);
 	}
-	
+
 	u8 r8()	  { u8  rv=*((u8*)dma_buffer_in);dma_buffer_in+=1;dma_count_in-=1; return rv; }
 	u16 r16() { u16 rv=*((u16*)dma_buffer_in);dma_buffer_in+=2;dma_count_in-=2; return rv; }
 	u32 r32() { u32 rv=*(u32*)dma_buffer_in;dma_buffer_in+=4;dma_count_in-=4; return rv; }
@@ -182,7 +191,7 @@ struct maple_sega_controller: maple_base
 
 			//1	direction
 			w8(0);
-			
+
 			//30
 			wstr(maple_sega_controller_name,30);
 
@@ -190,7 +199,7 @@ struct maple_sega_controller: maple_base
 			wstr(maple_sega_brand,60);
 
 			//2
-			w16(0x01AE); 
+			w16(0x01AE);
 
 			//2
 			w16(0x01F4);
@@ -236,7 +245,7 @@ struct maple_sega_controller: maple_base
 			//printf("UNKOWN MAPLE COMMAND %d\n",cmd);
 			return MDRE_UnknownFunction;
 		}
-	}	
+	}
 };
 
 /*
@@ -272,7 +281,7 @@ struct maple_sega_vmu: maple_base
 	u8 flash_data[128*1024];
 	u8 lcd_data[192];
 	u8 lcd_data_decoded[48*32];
-	
+
 	virtual void OnSetup()
 	{
 		memset(flash_data,0,sizeof(flash_data));
@@ -362,7 +371,7 @@ struct maple_sega_vmu: maple_base
 				case MFID_1_Storage:
 					{
 						w32(MFID_1_Storage);
-						
+
 						//total_size;
 						w16(0xff);
 						//partition_number;
@@ -408,7 +417,7 @@ struct maple_sega_vmu: maple_base
 							w8(31);             //Y dots -1
 							w8(((1)<<4) | (0)); //1 Color, 0 contrast levels
 							w8(0);              //Padding
-							
+
 							return MDRS_DataTransfer;
 						}
 					}
@@ -450,7 +459,7 @@ struct maple_sega_vmu: maple_base
 						w32(MFID_2_LCD);
 						w32(r32()); // mnn ?
 						wptr(flash_data,192);
-						
+
 						return MDRS_DataTransfer;//data transfer
 					}
 					break;
@@ -469,7 +478,7 @@ struct maple_sega_vmu: maple_base
 							time_t now;
 							time(&now);
 							tm* timenow=localtime(&now);
-							
+
 							u8* timebuf=dma_buffer_out;
 
 							w8((timenow->tm_year+1900)%256);
@@ -505,7 +514,7 @@ struct maple_sega_vmu: maple_base
 					{
 						u32 bph=r32();
 						u32 Block = (SWAP32(bph))&0xffff;
-						u32 Phase = ((SWAP32(bph))>>16)&0xff; 
+						u32 Phase = ((SWAP32(bph))>>16)&0xff;
 						u32 write_adr=Block*512+Phase*(512/4);
 						u32 write_len=r_count();
 						rptr(&flash_data[write_adr],write_len);
@@ -523,13 +532,13 @@ struct maple_sega_vmu: maple_base
 						return MDRS_DeviceReply;//just ko
 					}
 					break;
-					
+
 
 					case MFID_2_LCD:
 					{
 						u32 wat=r32();
 						rptr(lcd_data,192);
-						
+
 						u8 white=0xff,black=0x00;
 
 						for(int y=0;y<32;++y)
@@ -555,8 +564,8 @@ struct maple_sega_vmu: maple_base
 							dev->lcd.visible=true;
 							ShowWindow(dev->lcd.handle,SHOW_OPENNOACTIVATE);
 						}
-						
-							
+
+
 							InvalidateRect(dev->lcd.handle,NULL,FALSE);
 						}
 
@@ -656,7 +665,7 @@ struct maple_sega_vmu: maple_base
 			//printf("Unknown MAPLE COMMAND %d\n",cmd);
 			return MDRE_UnknownCmd;
 		}
-	}	
+	}
 };
 #endif
 
@@ -695,7 +704,7 @@ struct maple_microphone: maple_base
 
 			//1	direction
 			w8(0);
-			
+
 			//30
 			wstr(maple_sega_mic_name,30);
 
@@ -703,7 +712,7 @@ struct maple_microphone: maple_base
 			wstr(maple_sega_brand,60);
 
 			//2
-			w16(0x01AE); 
+			w16(0x01AE);
 
 			//2
 			w16(0x01F4);
@@ -835,7 +844,7 @@ struct maple_microphone: maple_base
 			LOGW("maple_microphone::dma UNHANDLED MAPLE COMMAND %d\n",cmd);
 			return MDRE_UnknownFunction;
 		}
-	}	
+	}
 };
 
 maple_device* maple_Create(MapleDeviceType type)
